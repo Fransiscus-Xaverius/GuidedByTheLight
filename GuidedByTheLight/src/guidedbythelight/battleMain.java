@@ -6,6 +6,7 @@ package guidedbythelight;
 import static guidedbythelight.MainGame.FPS;
 import static guidedbythelight.MainGame.HEIGHT;
 import static guidedbythelight.MainGame.WIDTH;
+import java.awt.Color;
 import processing.core.*;
 import java.util.ArrayList;
 import java.io.File;
@@ -46,6 +47,12 @@ public class battleMain extends PApplet{
     boolean running, idle, attacking_1, attacking_2;
     boolean left, right, up, down;
     
+    boolean chooseMove = true;
+    boolean isAttacking = false;
+    boolean isDefending = false;
+    boolean isFleeing = false;
+    boolean isUsingItem = false;
+    
     public Knight knight;
     public PImage[] idle_2;
     public PImage[] walk_2;
@@ -54,6 +61,7 @@ public class battleMain extends PApplet{
     ArrayList<CharacterObject> enemies;
 
     public void setup(){
+         b = new GUIButton(100,450,200,50, new Color(255,255,0));
         running = attacking_1 = attacking_2 = false;
         enemies = new ArrayList<>();
         idle = true;
@@ -100,20 +108,127 @@ public class battleMain extends PApplet{
     }
     
     int f = 0;
+    //attack button
+    GUIButton b;
     
+    public boolean rectOverAttack = false;
+    public boolean rectOverItems = false;
+    public boolean rectOverDefend = false;
+    public boolean rectOverFlee = false;
+    
+    boolean overRect(int x, int y, int width, int height)  {
+        if (mouseX >= x && mouseX <= x+width && mouseY >= y && mouseY <= y+height) {
+            return true;
+        } else {
+            return false;
+        }   
+    }
+    
+    void update(int x, int y, GUIButton b) {
+        //Button Registry on press.
+        //Not a good implementation but this will do.
+        if ( overRect(b.x, b.y, b.width, b.height) ) {
+          rectOverAttack = true;
+        }
+        else{
+            rectOverAttack = false;
+        }
+        if(overRect((b.x+250), b.y, b.width, b.height)){
+          rectOverDefend = true;
+        }
+        else{
+            rectOverDefend = false;
+        }
+        if(overRect(b.x, (b.y+75), b.width, b.height)){
+            rectOverItems = true;
+        } 
+        else{
+            rectOverItems = false;
+        }
+        if(overRect((b.x+250), (b.y+75), b.width, b.height)){
+            rectOverFlee = true;
+        }
+        else{
+            rectOverFlee = false;
+        }
+    }
+    
+    public void mousePressed(){
+        if(rectOverAttack){
+            isAttacking = true;
+            chooseMove = false;
+        }
+        else if(rectOverDefend){
+            isDefending = true;
+            chooseMove = false;
+        }
+        else if(rectOverItems){
+            isUsingItem = true;
+            chooseMove = false;
+        }
+        else if(rectOverFlee){
+            isFleeing = true;
+            chooseMove = false;
+        }
+    }
+    int c = 0;
     public void draw(){
+        update(mouseX, mouseY, b);
         background(bg);
-        enchantress.update(left, right, up, down);
-        if(attacking_1){
-            boolean invoke_battle = enchantress.drawAttack1(this, f, enemies);
-        }
-        else if(idle){
+        
+        if(chooseMove){
             enchantress.drawIdle(this, f);
+            knight.drawIdle(this, f);
         }
-        else if(running){
-            enchantress.drawWalk(this, f);
+        else if(isAttacking){
+            textSize(30);
+            fill(248);
+            text("The Enchantress Attacks..", 120, 450);
+            if(c>85){
+                f = -1;
+                c = 0;
+                enchantress.x = 200;
+                isAttacking = false;
+                chooseMove = true;
+                System.out.println(f+",");
+            }
+            else if(c>70){
+                enchantress.drawAttack1(this, f, enemies);
+                f= -1;
+                System.out.println(c+"");
+                c++;
+            }
+            else{
+                enchantress.x+=10;
+                enchantress.drawWalk(this, f);
+                c++;
+                f= -1;
+            }
         }
         
+        if(chooseMove){
+            //Draw Attack button
+            fill(255,245,248);
+            stroke(255, 245, 248);
+            rect(b.x,b.y,b.width,b.height);
+
+            //Draw Defend Button
+            fill(255,245,248);
+            stroke(255, 245, 248);
+            rect((b.x+250),b.y,b.width,b.height);
+
+            //Draw Items Button
+            fill(255,245,248);
+            stroke(255, 245, 248);
+            rect(b.x,(b.y+75),b.width,b.height);
+
+            //Draw Flee Button
+            fill(255,245,248);
+            stroke(255, 245, 248);
+            rect((b.x+250),(b.y+75),b.width,b.height);
+        }
+        
+        //Draw Enemy
         knight.drawIdle(this, f);
         f++;
     }

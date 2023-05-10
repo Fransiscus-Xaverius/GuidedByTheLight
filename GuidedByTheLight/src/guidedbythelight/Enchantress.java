@@ -59,7 +59,7 @@ public class Enchantress extends CharacterObject{
     public void drawIdle(PApplet app, int f){
         if(f==-1) {t=0; f = 0;}
         if(f%10==0) t++;
-        if(t==5) t=0;
+        if(t>4) t=0;
         app.image(idle[t],x,y);
     }
     
@@ -67,7 +67,7 @@ public class Enchantress extends CharacterObject{
     public void drawWalk(PApplet app, int f){
         if(f==-1) {t=0; f = 0;}
         if(f%10==0) t++;
-        if(t==8) t=0;
+        if(t>7) t=0;
         app.image(walk[t],x,y);
     }
     
@@ -94,7 +94,7 @@ public class Enchantress extends CharacterObject{
     public boolean drawAttack1(PApplet app, int f, ArrayList<CharacterObject> enemies){
         if(f==-1) {t=0; f = 0;}
         if(f%10==0) t++;
-        if(t==6) {
+        if(t>5) {
             t=0;
             boolean collided = false;
             for(CharacterObject e : enemies){
