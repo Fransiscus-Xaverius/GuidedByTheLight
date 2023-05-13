@@ -171,7 +171,9 @@ public class battleMain extends PApplet{
             chooseMove = false;
         }
     }
+    
     int c = 0;
+    
     public void draw(){
         update(mouseX, mouseY, b);
         background(bg);
